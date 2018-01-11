@@ -1,0 +1,25 @@
+# Created by .ignore support plugin (hsz.mobi)
+### template template
+atlassian-ide-plugin.xml
+
+## Ignore svn files
+.svn
+
+## ignore any target dir
+target
+
+##ignore only top level writeData dir - local node writeData files for unit tests
+#/writeData
+
+## Ignore project files created by Eclipse
+.settings
+.project
+.classpath
+
+## Ignore project files created by IntelliJ IDEA
+*.iml
+*.ipr
+*.iws
+.idea
+
+*.DS_Store
