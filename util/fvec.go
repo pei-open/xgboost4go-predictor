@@ -5,13 +5,13 @@ type FVec interface {
 }
 
 type FVecFloat32ArrayImpl struct {
-	Values         []float32;
-	TreatsZeroAsNA bool;
+	Values         []float32
+	TreatsZeroAsNA bool
 }
 
 func (f FVecFloat32ArrayImpl) Fvalue(index int) float32 {
 	if (len(f.Values) <= index) {
-		return 0.0 / 0.0;
+		return 0.0 / 0.0
 	} else {
 		result := f.Values[index]
 		if f.TreatsZeroAsNA && result == 0.0 {
@@ -23,13 +23,13 @@ func (f FVecFloat32ArrayImpl) Fvalue(index int) float32 {
 }
 
 type FVecFloat64ArrayImpl struct {
-	Values         []float64;
-	TreatsZeroAsNA bool;
+	Values         []float64
+	TreatsZeroAsNA bool
 }
 
 func (f FVecFloat64ArrayImpl) Fvalue(index int) float32 {
 	if (len(f.Values) <= index) {
-		return 0.0 / 0.0;
+		return 0.0 / 0.0
 	} else {
 		result := f.Values[index]
 		if f.TreatsZeroAsNA && result == 0.0 {

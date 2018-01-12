@@ -93,7 +93,7 @@ func (gbTree *GBTree) LoadModel(reader *util.ModelReader, with_pbuffer bool) err
 func (gbTree *GBTree) Predict(feat util.FVec, ntree_limit int) ([]float32, error) {
 	preds := make([]float32, gbTree.mparam.num_output_group)
 	for gid := 0; gid < gbTree.mparam.num_output_group; gid++ {
-		preds[gid] = gbTree.Pred(feat, gid, 0, ntree_limit);
+		preds[gid] = gbTree.Pred(feat, gid, 0, ntree_limit)
 	}
 
 	return preds, nil
@@ -238,15 +238,15 @@ func (gbLinear *GBLinear) PredictSingle(feat util.FVec, ntree_limit int) (float3
 }
 
 func (gbLinear *GBLinear) Pred(feat util.FVec, gid int) float32 {
-	psum := gbLinear.Bias(gid);
+	psum := gbLinear.Bias(gid)
 	for fid := 0; fid < gbLinear.mparam.num_feature; fid++ {
-		featValue := feat.Fvalue(fid);
+		featValue := feat.Fvalue(fid)
 		if (!math32.IsNaN(featValue)) {
-			psum += featValue * gbLinear.Weight(fid, gid);
+			psum += featValue * gbLinear.Weight(fid, gid)
 		}
 	}
 
-	return psum;
+	return psum
 }
 
 func (gbLinear *GBLinear) PredictLeaf(feat util.FVec, ntree_limit int) ([]int, error) {
@@ -254,11 +254,11 @@ func (gbLinear *GBLinear) PredictLeaf(feat util.FVec, ntree_limit int) ([]int, e
 }
 
 func (gbLinear *GBLinear) Weight(fid, gid int) float32 {
-	return gbLinear.weights[fid*gbLinear.mparam.num_output_group+gid];
+	return gbLinear.weights[fid*gbLinear.mparam.num_output_group+gid]
 }
 
 func (gbLinear *GBLinear) Bias(gid int) float32 {
-	return gbLinear.weights[gbLinear.mparam.num_feature*gbLinear.mparam.num_output_group+gid];
+	return gbLinear.weights[gbLinear.mparam.num_feature*gbLinear.mparam.num_output_group+gid]
 }
 
 type GBLinearParam struct {
@@ -270,18 +270,18 @@ type GBLinearParam struct {
 func newGBLinearParam(reader *util.ModelReader) (*GBLinearParam, error) {
 	gbLinearParam := new(GBLinearParam)
 	var err error
-	gbLinearParam.num_feature, err = reader.ReadInt();
+	gbLinearParam.num_feature, err = reader.ReadInt()
 	if err != nil {
 		return gbLinearParam, err
 	}
-	gbLinearParam.num_output_group, err = reader.ReadInt();
+	gbLinearParam.num_output_group, err = reader.ReadInt()
 	if err != nil {
 		return gbLinearParam, err
 	}
-	gbLinearParam.reserved, err = reader.ReadIntArray(32);
+	gbLinearParam.reserved, err = reader.ReadIntArray(32)
 	if err != nil {
 		return gbLinearParam, err
 	}
-	_, err = reader.ReadInt();
+	_, err = reader.ReadInt()
 	return gbLinearParam, err
 }

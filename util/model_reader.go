@@ -24,7 +24,7 @@ func NewModelReaderByFile(fileName string) (*ModelReader, *os.File, error) {
 
 func NewModelReaderByReader(reader bufio.Reader) *ModelReader {
 	modelReader := new(ModelReader)
-	modelReader.byteReader = reader;
+	modelReader.byteReader = reader
 	return modelReader
 }
 
@@ -37,13 +37,13 @@ func (mr *ModelReader) fillBuffer(numBytes int) (int, error) {
 	numBytesRead := 0
 	var err error
 	for ; numBytesRead < numBytes; numBytesRead += count {
-		count, err = mr.byteReader.Read(mr.buffer[numBytesRead:numBytes-numBytesRead]);
+		count, err = mr.byteReader.Read(mr.buffer[numBytesRead:numBytes-numBytesRead])
 		if (count < 0) {
-			return numBytesRead, err;
+			return numBytesRead, err
 		}
 	}
 
-	return numBytesRead, nil;
+	return numBytesRead, nil
 }
 
 func (mr *ModelReader) ReadByteAsInt() (int, error) {
@@ -56,41 +56,41 @@ func (this *ModelReader) ReadByteArray(numBytes int) ([]byte, error) {
 	if err != nil {
 		return nil, nil
 	}
-	if (numBytesRead < numBytes) {
+	if numBytesRead < numBytes {
 		return nil, fmt.Errorf("Cannot read byte array (shortage): expected = %d, actual = %d", numBytes, numBytesRead)
 	} else {
 		result := make([]byte, numBytes)
 		copy(this.buffer[0:numBytes], result)
-		return result, nil;
+		return result, nil
 	}
 }
 
 func (mr *ModelReader) ReadInt() (int, error) {
-	return mr.ReadIntByteOrder(binary.LittleEndian);
+	return mr.ReadIntByteOrder(binary.LittleEndian)
 }
 
 func (mr *ModelReader) ReadIntBE() (int, error) {
-	return mr.ReadIntByteOrder(binary.BigEndian);
+	return mr.ReadIntByteOrder(binary.BigEndian)
 }
 
 func (this *ModelReader) ReadIntByteOrder(order binary.ByteOrder) (int, error) {
-	numBytesRead, err := this.fillBuffer(4);
+	numBytesRead, err := this.fillBuffer(4)
 	if err != nil {
 		return 0, err
 	}
-	if (numBytesRead < 4) {
+	if numBytesRead < 4 {
 		return 0, fmt.Errorf("Cannot read int value (shortage): %d", numBytesRead)
 	} else {
-		return int(order.Uint32(this.buffer[0:4])), nil;
+		return int(order.Uint32(this.buffer[0:4])), nil
 	}
 }
 
 func (this *ModelReader) ReadIntArray(numValues int) ([]int, error) {
-	numBytesRead, err := this.fillBuffer(numValues * 4);
+	numBytesRead, err := this.fillBuffer(numValues * 4)
 	if err != nil {
 		return nil, err
 	}
-	if (numBytesRead < numValues*4) {
+	if numBytesRead < numValues*4 {
 		return nil, fmt.Errorf("Cannot read int array (shortage): expected = %d, actual = %d", numValues*4, numBytesRead)
 	} else {
 		res := make([]int, numValues)
@@ -98,24 +98,24 @@ func (this *ModelReader) ReadIntArray(numValues int) ([]int, error) {
 			res[i] = int(binary.LittleEndian.Uint32(this.buffer[i*4:(i+1)*4]))
 		}
 
-		return res, nil;
+		return res, nil
 	}
 }
 
 func (this *ModelReader) ReadUnsignedInt() (int, error) {
-	result, err := this.ReadInt();
+	result, err := this.ReadInt()
 	if err != nil {
 		return 0, err
 	}
 	if (result < 0) {
 		return 0, fmt.Errorf("Cannot read unsigned int (overflow): %d", result)
 	} else {
-		return result, nil;
+		return result, nil
 	}
 }
 
 func (this *ModelReader) ReadInt64() (int64, error) {
-	numBytesRead, err := this.fillBuffer(8);
+	numBytesRead, err := this.fillBuffer(8)
 	if err != nil {
 		return 0, err
 	}
@@ -135,12 +135,12 @@ func (this *ModelReader) AsUnsignedInt(bytes []byte) (int, error) {
 	if (result < 0) {
 		return 0, fmt.Errorf("Cannot treat as unsigned int (overflow): %d", result)
 	} else {
-		return result, nil;
+		return result, nil
 	}
 }
 
 func (this *ModelReader) ReadFloat() (float32, error) {
-	numBytesRead, err := this.fillBuffer(4);
+	numBytesRead, err := this.fillBuffer(4)
 	if err != nil {
 		return 0, err
 	}
@@ -152,7 +152,7 @@ func (this *ModelReader) ReadFloat() (float32, error) {
 }
 
 func (this *ModelReader) ReadFloatArray(numValues int) ([]float32, error) {
-	numBytesRead, err := this.fillBuffer(numValues * 4);
+	numBytesRead, err := this.fillBuffer(numValues * 4)
 	if err != nil {
 		return nil, err
 	}
@@ -164,12 +164,12 @@ func (this *ModelReader) ReadFloatArray(numValues int) ([]float32, error) {
 			res[i] = math.Float32frombits(binary.LittleEndian.Uint32(this.buffer[i*4:(i+1)*4]))
 		}
 
-		return res, nil;
+		return res, nil
 	}
 }
 
 func (this *ModelReader) ReadDoubleArrayBE(numValues int) ([]float64, error) {
-	numBytesRead, err := this.fillBuffer(numValues * 8);
+	numBytesRead, err := this.fillBuffer(numValues * 8)
 	if err != nil {
 		return nil, err
 	}
@@ -181,12 +181,12 @@ func (this *ModelReader) ReadDoubleArrayBE(numValues int) ([]float64, error) {
 			res[i] = math.Float64frombits(binary.LittleEndian.Uint64(this.buffer[i*8:(i+1)*8]))
 		}
 
-		return res, nil;
+		return res, nil
 	}
 }
 
 func (this *ModelReader) Skip(numBytes int) error {
-	numBytesRead, err := this.byteReader.Discard(numBytes);
+	numBytesRead, err := this.byteReader.Discard(numBytes)
 	if err != nil {
 		return err
 	}
@@ -197,7 +197,7 @@ func (this *ModelReader) Skip(numBytes int) error {
 }
 
 func (this *ModelReader) ReadString() (string, error) {
-	length, err := this.ReadInt64();
+	length, err := this.ReadInt64()
 	if err != nil {
 		return "", err
 	}
@@ -209,7 +209,7 @@ func (this *ModelReader) ReadString() (string, error) {
 }
 
 func (this *ModelReader) ReadFixedString(numBytes int) (string, error) {
-	numBytesRead, err := this.fillBuffer(numBytes);
+	numBytesRead, err := this.fillBuffer(numBytes)
 	if err != nil {
 		return "", err
 	}

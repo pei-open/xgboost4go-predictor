@@ -21,47 +21,47 @@ func NewPredictorByReader(reader bufio.Reader) (*Predictor, error) {
 }
 
 func NewPredictorByConf(reader bufio.Reader, configuration config.Configuration) (*Predictor, error) {
-	modelReader := util.NewModelReaderByReader(reader);
+	modelReader := util.NewModelReaderByReader(reader)
 	predictor := new(Predictor)
-	err := predictor.readParam(modelReader);
+	err := predictor.readParam(modelReader)
 	if err != nil {
 		return predictor, err
 	}
-	err = predictor.initObjFunction(configuration);
+	err = predictor.initObjFunction(configuration)
 	if err != nil {
 		return predictor, err
 	}
-	err = predictor.initObjGbm();
+	err = predictor.initObjGbm()
 	if err != nil {
 		return predictor, err
 	}
-	predictor.Gbm.LoadModel(modelReader, predictor.Mparam.saved_with_pbuffer != 0);
+	predictor.Gbm.LoadModel(modelReader, predictor.Mparam.saved_with_pbuffer != 0)
 	return predictor, nil
 }
 
 func (predictor *Predictor) readParam(reader *util.ModelReader) error {
-	first4Bytes, err := reader.ReadByteArray(4);
+	first4Bytes, err := reader.ReadByteArray(4)
 	if err != nil {
 		return err
 	}
-	next4Bytes, err := reader.ReadByteArray(4);
+	next4Bytes, err := reader.ReadByteArray(4)
 	if err != nil {
 		return err
 	}
 	var base_score float32
 	var num_feature int
 	if (first4Bytes[0] == 98 && first4Bytes[1] == 105 && first4Bytes[2] == 110 && first4Bytes[3] == 102) {
-		base_score = reader.AsFloat(next4Bytes);
-		num_feature, err = reader.ReadUnsignedInt();
+		base_score = reader.AsFloat(next4Bytes)
+		num_feature, err = reader.ReadUnsignedInt()
 		if err != nil {
 			return err
 		}
 	} else if (first4Bytes[0] == 0 && first4Bytes[1] == 5 && first4Bytes[2] == 95) {
 		var modelType string
 		if (first4Bytes[3] == 99 && next4Bytes[0] == 108 && next4Bytes[1] == 115 && next4Bytes[2] == 95) {
-			modelType = "_cls_";
+			modelType = "_cls_"
 		} else if (first4Bytes[3] == 114 && next4Bytes[0] == 101 && next4Bytes[1] == 103 && next4Bytes[2] == 95) {
-			modelType = "_reg_";
+			modelType = "_reg_"
 		}
 
 		if (modelType != "") {
@@ -74,24 +74,24 @@ func (predictor *Predictor) readParam(reader *util.ModelReader) error {
 			if err != nil {
 				return err
 			}
-			base_score, err = reader.ReadFloat();
+			base_score, err = reader.ReadFloat()
 			if err != nil {
 				return err
 			}
-			num_feature, err = reader.ReadUnsignedInt();
+			num_feature, err = reader.ReadUnsignedInt()
 			if err != nil {
 				return err
 			}
 		} else {
-			base_score = reader.AsFloat(first4Bytes);
-			num_feature, err = reader.AsUnsignedInt(next4Bytes);
+			base_score = reader.AsFloat(first4Bytes)
+			num_feature, err = reader.AsUnsignedInt(next4Bytes)
 			if err != nil {
 				return err
 			}
 		}
 	} else {
-		base_score = reader.AsFloat(first4Bytes);
-		num_feature, err = reader.AsUnsignedInt(next4Bytes);
+		base_score = reader.AsFloat(first4Bytes)
+		num_feature, err = reader.AsUnsignedInt(next4Bytes)
 		if err != nil {
 			return err
 		}
@@ -101,11 +101,11 @@ func (predictor *Predictor) readParam(reader *util.ModelReader) error {
 	if err != nil {
 		return err
 	}
-	predictor.Name_obj, err = reader.ReadString();
+	predictor.Name_obj, err = reader.ReadString()
 	if err != nil {
 		return err
 	}
-	predictor.Name_gbm, err = reader.ReadString();
+	predictor.Name_gbm, err = reader.ReadString()
 	return err
 }
 

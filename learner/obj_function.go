@@ -8,12 +8,12 @@ import (
 var FUNCTIONS = make(map[string]ObjFunction)
 
 func init() {
-	Register("rank:pairwise", new(DefaultObjFunction));
-	Register("binary:logistic", new(RegLossObjLogistic));
-	Register("binary:logitraw", new(DefaultObjFunction));
-	Register("multi:softmax", new(SoftmaxMultiClassObjClassify));
-	Register("multi:softprob", new(SoftmaxMultiClassObjProb));
-	Register("reg:linear", new(DefaultObjFunction));
+	Register("rank:pairwise", new(DefaultObjFunction))
+	Register("binary:logistic", new(RegLossObjLogistic))
+	Register("binary:logitraw", new(DefaultObjFunction))
+	Register("multi:softmax", new(SoftmaxMultiClassObjClassify))
+	Register("multi:softprob", new(SoftmaxMultiClassObjProb))
+	Register("reg:linear", new(DefaultObjFunction))
 }
 
 func FromName(name string) (ObjFunction, error) {
@@ -27,16 +27,16 @@ func FromName(name string) (ObjFunction, error) {
 
 func UseFastMathExp(useJafama bool) {
 	if (useJafama) {
-		Register("binary:logistic", new(RegLossObjLogistic_Jafama));
-		Register("multi:softprob", new(SoftmaxMultiClassObjProb_Jafama));
+		Register("binary:logistic", new(RegLossObjLogistic_Jafama))
+		Register("multi:softprob", new(SoftmaxMultiClassObjProb_Jafama))
 	} else {
-		Register("binary:logistic", new(RegLossObjLogistic));
-		Register("multi:softprob", new(SoftmaxMultiClassObjProb));
+		Register("binary:logistic", new(RegLossObjLogistic))
+		Register("multi:softprob", new(SoftmaxMultiClassObjProb))
 	}
 }
 
 func Register(name string, objFunction ObjFunction) {
-	FUNCTIONS[name] = objFunction;
+	FUNCTIONS[name] = objFunction
 }
 
 type ObjFunction interface {
@@ -155,7 +155,7 @@ func (rlolj RegLossObjLogistic_Jafama) PredTransformSingle(pred float32) (float3
 
 func (rlolj RegLossObjLogistic_Jafama) PredTransform(preds []float32) []float32 {
 	for i := 0; i < len(preds); i++ {
-		preds[i] = rlolj.Sigmoid(preds[i]);
+		preds[i] = rlolj.Sigmoid(preds[i])
 	}
 
 	return preds
