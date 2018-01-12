@@ -1,5 +1,7 @@
 package util
 
+import "xgboost4go-predictor/math"
+
 type FVec interface {
 	Fvalue(index int) float32
 }
@@ -10,12 +12,12 @@ type FVecFloat32ArrayImpl struct {
 }
 
 func (f FVecFloat32ArrayImpl) Fvalue(index int) float32 {
-	if (len(f.Values) <= index) {
-		return 0.0 / 0.0
+	if len(f.Values) <= index {
+		return math.NaN()
 	} else {
 		result := f.Values[index]
 		if f.TreatsZeroAsNA && result == 0.0 {
-			return 0.0 / 0.0
+			return math.NaN()
 		} else {
 			return result
 		}
@@ -28,12 +30,12 @@ type FVecFloat64ArrayImpl struct {
 }
 
 func (f FVecFloat64ArrayImpl) Fvalue(index int) float32 {
-	if (len(f.Values) <= index) {
-		return 0.0 / 0.0
+	if len(f.Values) <= index {
+		return math.NaN()
 	} else {
 		result := f.Values[index]
 		if f.TreatsZeroAsNA && result == 0.0 {
-			return 0.0 / 0.0
+			return math.NaN()
 		} else {
 			return float32(result)
 		}
@@ -47,7 +49,7 @@ type FVecMapFloat32Impl struct {
 func (f FVecMapFloat32Impl) Fvalue(index int) float32 {
 	value, ok := f.Values[index]
 	if ok {
-		return 0.0 / 0.0
+		return math.NaN()
 	} else {
 		return value
 	}
@@ -60,7 +62,7 @@ type FVecMapFloat64Impl struct {
 func (f FVecMapFloat64Impl) Fvalue(index int) float32 {
 	value, ok := f.Values[index]
 	if ok {
-		return 0.0 / 0.0
+		return math.NaN()
 	} else {
 		return float32(value)
 	}

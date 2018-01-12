@@ -1,6 +1,9 @@
 package tree
 
-import "xgboost4go-predictor/util"
+import (
+	"xgboost4go-predictor/util"
+	"xgboost4go-predictor/math"
+)
 
 type RegTree struct {
 	param *Param
@@ -11,7 +14,8 @@ type RegTree struct {
 func (rt *RegTree) GetLeafIndex(feat util.FVec, root_id int) int {
 	pid := root_id
 	n := rt.nodes[pid]
-	for pid = root_id; !n._isLeaf; pid = n.next(feat) {
+	for !n._isLeaf {
+		pid = n.next(feat)
 		n = rt.nodes[pid]
 	}
 
@@ -20,8 +24,8 @@ func (rt *RegTree) GetLeafIndex(feat util.FVec, root_id int) int {
 
 func (rt *RegTree) GetLeafValueFloat(feat util.FVec, root_id int) float32 {
 	n := rt.nodes[root_id]
-	for ; !n._isLeaf; n = rt.nodes[n.next(feat)] {
-		n = rt.nodes[root_id]
+	for !n._isLeaf {
+		n = rt.nodes[n.next(feat)]
 	}
 
 	return n.leaf_value
@@ -132,12 +136,12 @@ func newNode(reader *util.ModelReader) (*Node, error) {
 	if err != nil {
 		return node, err
 	}
-	if (node.is_leaf()) {
+	if node.is_leaf() {
 		node.leaf_value, err = reader.ReadFloat()
-		node.split_cond = 0.0 / 0.0
+		node.split_cond = math.NaN()
 	} else {
 		node.split_cond, err = reader.ReadFloat()
-		node.leaf_value = 0.0 / 0.0
+		node.leaf_value = math.NaN()
 	}
 
 	node._defaultNext = node.cdefault()
@@ -187,7 +191,7 @@ func (n *Node) default_left() bool {
 
 func (n *Node) next(feat util.FVec) int {
 	fvalue := feat.Fvalue(n._splitIndex)
-	if (fvalue != fvalue) {
+	if fvalue != fvalue {
 		return n._defaultNext
 	} else {
 		if fvalue < n.split_cond {

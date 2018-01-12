@@ -1,4 +1,4 @@
-package xgboost4go_predictor
+package predictor
 
 import (
 	"xgboost4go-predictor/learner"
