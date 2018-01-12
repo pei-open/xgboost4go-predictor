@@ -3,8 +3,8 @@ package gbm
 import (
 	"xgboost4go-predictor/util"
 	"xgboost4go-predictor/tree"
+	"xgboost4go-predictor/math"
 	"fmt"
-	"github.com/chewxy/math32"
 )
 
 type GradBooster interface {
@@ -241,7 +241,7 @@ func (gbLinear *GBLinear) Pred(feat util.FVec, gid int) float32 {
 	psum := gbLinear.Bias(gid)
 	for fid := 0; fid < gbLinear.mparam.num_feature; fid++ {
 		featValue := feat.Fvalue(fid)
-		if (!math32.IsNaN(featValue)) {
+		if (!math.IsNaN(featValue)) {
 			psum += featValue * gbLinear.Weight(fid, gid)
 		}
 	}

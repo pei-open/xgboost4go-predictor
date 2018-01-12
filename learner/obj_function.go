@@ -2,7 +2,7 @@ package learner
 
 import (
 	"fmt"
-	"github.com/chewxy/math32"
+	"xgboost4go-predictor/math"
 )
 
 var FUNCTIONS = make(map[string]ObjFunction)
@@ -27,8 +27,8 @@ func FromName(name string) (ObjFunction, error) {
 
 func UseFastMathExp(useJafama bool) {
 	if (useJafama) {
-		Register("binary:logistic", new(RegLossObjLogistic_Jafama))
-		Register("multi:softprob", new(SoftmaxMultiClassObjProb_Jafama))
+		Register("binary:logistic", new(RegLossObjLogisticJafama))
+		Register("multi:softprob", new(SoftmaxMultiClassObjProbJafama))
 	} else {
 		Register("binary:logistic", new(RegLossObjLogistic))
 		Register("multi:softprob", new(SoftmaxMultiClassObjProb))
@@ -65,12 +65,12 @@ func (smcop SoftmaxMultiClassObjProb) PredTransformSingle(pred float32) (float32
 func (smcop SoftmaxMultiClassObjProb) PredTransform(preds []float32) []float32 {
 	max := preds[0]
 	for i := 1; i < len(preds); i++ {
-		max = math32.Max(preds[i], max)
+		max = math.MaxFloat32(preds[i], max)
 	}
 
 	sum := float32(0.0)
 	for i := 0; i < len(preds); i++ {
-		preds[i] = math32.Exp(preds[i] - max);
+		preds[i] = math.ExpFloat32(preds[i] - max);
 		sum += preds[i]
 	}
 
@@ -81,22 +81,22 @@ func (smcop SoftmaxMultiClassObjProb) PredTransform(preds []float32) []float32 {
 	return preds
 }
 
-type SoftmaxMultiClassObjProb_Jafama struct {
+type SoftmaxMultiClassObjProbJafama struct {
 }
 
-func (smcopj SoftmaxMultiClassObjProb_Jafama) PredTransformSingle(pred float32) (float32, error) {
-	return 0, fmt.Errorf("function not supported in SoftmaxMultiClassObjProb_Jafama")
+func (smcopj SoftmaxMultiClassObjProbJafama) PredTransformSingle(pred float32) (float32, error) {
+	return 0, fmt.Errorf("function not supported in SoftmaxMultiClassObjProbJafama")
 }
 
-func (smcopj SoftmaxMultiClassObjProb_Jafama) PredTransform(preds []float32) []float32 {
+func (smcopj SoftmaxMultiClassObjProbJafama) PredTransform(preds []float32) []float32 {
 	max := preds[0]
 	for i := 1; i < len(preds); i++ {
-		max = math32.Max(preds[i], max)
+		max = math.MaxFloat32(preds[i], max)
 	}
 
 	sum := float32(0.0)
 	for i := 0; i < len(preds); i++ {
-		preds[i] = math32.Exp(preds[i] - max)
+		preds[i] = math.ExpFloat32(preds[i] - max)
 		sum += preds[i]
 	}
 
@@ -143,17 +143,17 @@ func (rlol RegLossObjLogistic) PredTransform(preds []float32) []float32 {
 }
 
 func (rlol RegLossObjLogistic) Sigmoid(x float32) float32 {
-	return 1.0 / (1.0 + math32.Exp(-x))
+	return 1.0 / (1.0 + math.ExpFloat32(-x))
 }
 
-type RegLossObjLogistic_Jafama struct {
+type RegLossObjLogisticJafama struct {
 }
 
-func (rlolj RegLossObjLogistic_Jafama) PredTransformSingle(pred float32) (float32, error) {
+func (rlolj RegLossObjLogisticJafama) PredTransformSingle(pred float32) (float32, error) {
 	return rlolj.Sigmoid(pred), nil
 }
 
-func (rlolj RegLossObjLogistic_Jafama) PredTransform(preds []float32) []float32 {
+func (rlolj RegLossObjLogisticJafama) PredTransform(preds []float32) []float32 {
 	for i := 0; i < len(preds); i++ {
 		preds[i] = rlolj.Sigmoid(preds[i])
 	}
@@ -161,6 +161,6 @@ func (rlolj RegLossObjLogistic_Jafama) PredTransform(preds []float32) []float32 
 	return preds
 }
 
-func (rlolj RegLossObjLogistic_Jafama) Sigmoid(x float32) float32 {
-	return 1.0 / (1.0 + math32.Exp(-x))
+func (rlolj RegLossObjLogisticJafama) Sigmoid(x float32) float32 {
+	return 1.0 / (1.0 + math.ExpFloat32(-x))
 }
