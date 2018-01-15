@@ -40,15 +40,15 @@ func Register(name string, objFunction ObjFunction) {
 }
 
 type ObjFunction interface {
-	PredTransformSingle(pred float32) (float32, error)
+	PredTransformSingle(pred float32) float32
 	PredTransform(preds []float32) []float32
 }
 
 type DefaultObjFunction struct {
 }
 
-func (dof DefaultObjFunction) PredTransformSingle(pred float32) (float32, error) {
-	return pred, nil
+func (dof DefaultObjFunction) PredTransformSingle(pred float32) float32 {
+	return pred
 }
 
 func (dof DefaultObjFunction) PredTransform(preds []float32) []float32 {
@@ -58,8 +58,8 @@ func (dof DefaultObjFunction) PredTransform(preds []float32) []float32 {
 type SoftmaxMultiClassObjProb struct {
 }
 
-func (smcop SoftmaxMultiClassObjProb) PredTransformSingle(pred float32) (float32, error) {
-	return 0, fmt.Errorf("function not supported in SoftmaxMultiClassObjProb")
+func (smcop SoftmaxMultiClassObjProb) PredTransformSingle(pred float32) float32 {
+	return math.NAN
 }
 
 func (smcop SoftmaxMultiClassObjProb) PredTransform(preds []float32) []float32 {
@@ -84,8 +84,8 @@ func (smcop SoftmaxMultiClassObjProb) PredTransform(preds []float32) []float32 {
 type SoftmaxMultiClassObjProbJafama struct {
 }
 
-func (smcopj SoftmaxMultiClassObjProbJafama) PredTransformSingle(pred float32) (float32, error) {
-	return 0, fmt.Errorf("function not supported in SoftmaxMultiClassObjProbJafama")
+func (smcopj SoftmaxMultiClassObjProbJafama) PredTransformSingle(pred float32) float32 {
+	return math.NAN
 }
 
 func (smcopj SoftmaxMultiClassObjProbJafama) PredTransform(preds []float32) []float32 {
@@ -110,8 +110,8 @@ func (smcopj SoftmaxMultiClassObjProbJafama) PredTransform(preds []float32) []fl
 type SoftmaxMultiClassObjClassify struct {
 }
 
-func (smcoc SoftmaxMultiClassObjClassify) PredTransformSingle(pred float32) (float32, error) {
-	return 0, fmt.Errorf("function not supported in SoftmaxMultiClassObjClassify")
+func (smcoc SoftmaxMultiClassObjClassify) PredTransformSingle(pred float32) float32 {
+	return math.NAN
 }
 
 func (smcoc SoftmaxMultiClassObjClassify) PredTransform(preds []float32) []float32 {
@@ -130,8 +130,8 @@ func (smcoc SoftmaxMultiClassObjClassify) PredTransform(preds []float32) []float
 type RegLossObjLogistic struct {
 }
 
-func (rlol RegLossObjLogistic) PredTransformSingle(pred float32) (float32, error) {
-	return rlol.Sigmoid(pred), nil
+func (rlol RegLossObjLogistic) PredTransformSingle(pred float32) float32 {
+	return rlol.Sigmoid(pred)
 }
 
 func (rlol RegLossObjLogistic) PredTransform(preds []float32) []float32 {
@@ -149,8 +149,8 @@ func (rlol RegLossObjLogistic) Sigmoid(x float32) float32 {
 type RegLossObjLogisticJafama struct {
 }
 
-func (rlolj RegLossObjLogisticJafama) PredTransformSingle(pred float32) (float32, error) {
-	return rlolj.Sigmoid(pred), nil
+func (rlolj RegLossObjLogisticJafama) PredTransformSingle(pred float32) float32 {
+	return rlolj.Sigmoid(pred)
 }
 
 func (rlolj RegLossObjLogisticJafama) PredTransform(preds []float32) []float32 {

@@ -19,6 +19,8 @@ const (
 	bias     = 127
 )
 
+var NAN = Float32frombits(uvnan)
+
 func MaxFloat32(x, y float32) float32 {
 	switch {
 	case IsInf(x, 1) || IsInf(y, 1):
@@ -56,7 +58,7 @@ func Inf(sign int) float32 {
 }
 
 // NaN returns an IEEE 754 ``not-a-number'' value.
-func NaN() float32 { return Float32frombits(uvnan) }
+func NaN() float32 { return NAN }
 
 // IsNaN reports whether f is an IEEE 754 ``not-a-number'' value.
 func IsNaN(f float32) (is bool) {

@@ -10,9 +10,9 @@ import (
 type GradBooster interface {
 	SetNumClass(num_class int)
 	LoadModel(modelReader *util.ModelReader, var2 bool) error
-	Predict(fvec util.FVec, var2 int) ([]float32, error)
-	PredictSingle(fvec util.FVec, var2 int) (float32, error)
-	PredictLeaf(fvec util.FVec, var2 int) ([]int, error)
+	Predict(fvec util.FVec, var2 int) []float32
+	PredictSingle(fvec util.FVec, var2 int) float32
+	PredictLeaf(fvec util.FVec, var2 int) []int
 }
 
 func CreateGradBooster(name string) (GradBooster, error) {
@@ -90,20 +90,20 @@ func (gbTree *GBTree) LoadModel(reader *util.ModelReader, with_pbuffer bool) err
 	return err
 }
 
-func (gbTree *GBTree) Predict(feat util.FVec, ntree_limit int) ([]float32, error) {
+func (gbTree *GBTree) Predict(feat util.FVec, ntree_limit int) []float32 {
 	preds := make([]float32, gbTree.mparam.num_output_group)
 	for gid := 0; gid < gbTree.mparam.num_output_group; gid++ {
 		preds[gid] = gbTree.Pred(feat, gid, 0, ntree_limit)
 	}
 
-	return preds, nil
+	return preds
 }
 
-func (gbTree *GBTree) PredictSingle(feat util.FVec, ntree_limit int) (float32, error) {
+func (gbTree *GBTree) PredictSingle(feat util.FVec, ntree_limit int) float32 {
 	if (gbTree.mparam.num_output_group != 1) {
-		return 0, fmt.Errorf("Can't invoke predictSingle() because this model outputs multiple values: %d", gbTree.mparam.num_output_group)
+		return math.NAN
 	} else {
-		return gbTree.Pred(feat, 0, 0, ntree_limit), nil
+		return gbTree.Pred(feat, 0, 0, ntree_limit)
 	}
 }
 
@@ -121,8 +121,8 @@ func (gbTree *GBTree) Pred(feat util.FVec, bst_group, root_index, ntree_limit in
 	return psum
 }
 
-func (gbTree *GBTree) PredictLeaf(feat util.FVec, ntree_limit int) ([]int, error) {
-	return gbTree.PredPath(feat, 0, ntree_limit), nil
+func (gbTree *GBTree) PredictLeaf(feat util.FVec, ntree_limit int) []int {
+	return gbTree.PredPath(feat, 0, ntree_limit)
 }
 
 func (gbTree *GBTree) PredPath(feat util.FVec, root_index, ntree_limit int) []int {
@@ -220,20 +220,20 @@ func (gbLinear *GBLinear) LoadModel(reader *util.ModelReader, ignored_with_pbuff
 	return err
 }
 
-func (gbLinear *GBLinear) Predict(feat util.FVec, ntree_limit int) ([]float32, error) {
+func (gbLinear *GBLinear) Predict(feat util.FVec, ntree_limit int) []float32 {
 	preds := make([]float32, gbLinear.mparam.num_output_group)
 	for gid := 0; gid < gbLinear.mparam.num_output_group; gid++ {
 		preds[gid] = gbLinear.Pred(feat, gid)
 	}
 
-	return preds, nil
+	return preds
 }
 
-func (gbLinear *GBLinear) PredictSingle(feat util.FVec, ntree_limit int) (float32, error) {
+func (gbLinear *GBLinear) PredictSingle(feat util.FVec, ntree_limit int) float32 {
 	if (gbLinear.mparam.num_output_group != 1) {
-		return 0, fmt.Errorf("Can't invoke predictSingle() because this model outputs multiple values: %d", gbLinear.mparam.num_output_group)
+		return math.NAN
 	} else {
-		return gbLinear.Pred(feat, 0), nil
+		return gbLinear.Pred(feat, 0)
 	}
 }
 
@@ -249,8 +249,8 @@ func (gbLinear *GBLinear) Pred(feat util.FVec, gid int) float32 {
 	return psum
 }
 
-func (gbLinear *GBLinear) PredictLeaf(feat util.FVec, ntree_limit int) ([]int, error) {
-	return nil, fmt.Errorf("gblinear does not support predict leaf index")
+func (gbLinear *GBLinear) PredictLeaf(feat util.FVec, ntree_limit int) []int {
+	return nil
 }
 
 func (gbLinear *GBLinear) Weight(fid, gid int) float32 {

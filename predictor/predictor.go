@@ -141,62 +141,50 @@ func (predictor *Predictor) PredictWithMargin(feat util.FVec, output_margin bool
 }
 
 func (predictor *Predictor) PredictWithNtree(feat util.FVec, output_margin bool, ntree_limit int) []float32 {
-	preds, err := predictor.predictRaw(feat, ntree_limit)
-	if err != nil {
-		return preds
-	}
+	preds := predictor.predictRaw(feat, ntree_limit)
 	if output_margin {
-		return predictor.ObjFunction.PredTransform(preds)
-	} else {
 		return preds
+	} else {
+		return predictor.ObjFunction.PredTransform(preds)
 	}
 }
 
-func (predictor *Predictor) predictRaw(feat util.FVec, ntree_limit int) ([]float32, error) {
-	preds, err := predictor.Gbm.Predict(feat, ntree_limit)
-	if err != nil {
-		return preds, err
-	}
+func (predictor *Predictor) predictRaw(feat util.FVec, ntree_limit int) []float32 {
+	preds := predictor.Gbm.Predict(feat, ntree_limit)
 	for i := 0; i < len(preds); i++ {
 		preds[i] += predictor.Mparam.base_score
 	}
 
-	return preds, nil
+	return preds
 }
 
-func (predictor *Predictor) PredictSingle(feat util.FVec) (float32, error) {
+func (predictor *Predictor) PredictSingle(feat util.FVec) float32 {
 	return predictor.PredictSingleWithMargin(feat, false)
 }
 
-func (predictor *Predictor) PredictSingleWithMargin(feat util.FVec, output_margin bool) (float32, error) {
+func (predictor *Predictor) PredictSingleWithMargin(feat util.FVec, output_margin bool) float32 {
 	return predictor.PredictSingleWithNtree(feat, output_margin, 0)
 }
 
-func (predictor *Predictor) PredictSingleWithNtree(feat util.FVec, output_margin bool, ntree_limit int) (float32, error) {
-	pred, err := predictor.PredictSingleRaw(feat, ntree_limit)
-	if err != nil {
-		return pred, err
-	}
+func (predictor *Predictor) PredictSingleWithNtree(feat util.FVec, output_margin bool, ntree_limit int) float32 {
+	pred := predictor.PredictSingleRaw(feat, ntree_limit)
 	if output_margin {
-		return predictor.ObjFunction.PredTransformSingle(pred)
+		return pred
 	} else {
-		return pred, nil
+		return predictor.ObjFunction.PredTransformSingle(pred)
 	}
 }
 
-func (predictor *Predictor) PredictSingleRaw(feat util.FVec, ntree_limit int) (float32, error) {
-	temp, err := predictor.Gbm.PredictSingle(feat, ntree_limit)
-	if err != nil {
-		return 0, err
-	}
-	return temp + predictor.Mparam.base_score, nil
+func (predictor *Predictor) PredictSingleRaw(feat util.FVec, ntree_limit int) float32 {
+	temp := predictor.Gbm.PredictSingle(feat, ntree_limit)
+	return temp + predictor.Mparam.base_score
 }
 
-func (predictor *Predictor) PredictLeaf(feat util.FVec) ([]int, error) {
+func (predictor *Predictor) PredictLeaf(feat util.FVec) []int {
 	return predictor.PredictLeafWithNtree(feat, 0)
 }
 
-func (predictor *Predictor) PredictLeafWithNtree(feat util.FVec, ntree_limit int) ([]int, error) {
+func (predictor *Predictor) PredictLeafWithNtree(feat util.FVec, ntree_limit int) []int {
 	return predictor.Gbm.PredictLeaf(feat, ntree_limit)
 }
 
