@@ -132,16 +132,16 @@ func (predictor *Predictor) initObjGbm() error {
 	return nil
 }
 
-func (predictor *Predictor) Predict(feat util.FVec) []float32 {
-	return predictor.PredictWithMargin(feat, false)
+func (predictor *Predictor) PredictArray(values []float32, treatsZeroAsNA bool) []float32 {
+	return predictor.PredictArrayWithMargin(values, treatsZeroAsNA, false)
 }
 
-func (predictor *Predictor) PredictWithMargin(feat util.FVec, output_margin bool) []float32 {
-	return predictor.PredictWithNtree(feat, output_margin, 0)
+func (predictor *Predictor) PredictArrayWithMargin(values []float32, treatsZeroAsNA, output_margin bool) []float32 {
+	return predictor.PredictArrayWithNtree(values, treatsZeroAsNA, output_margin, 0)
 }
 
-func (predictor *Predictor) PredictWithNtree(feat util.FVec, output_margin bool, ntree_limit int) []float32 {
-	preds := predictor.predictRaw(feat, ntree_limit)
+func (predictor *Predictor) PredictArrayWithNtree(values []float32, treatsZeroAsNA, output_margin bool, ntree_limit int) []float32 {
+	preds := predictor.PredictArrayRaw(values, treatsZeroAsNA, ntree_limit)
 	if output_margin {
 		return preds
 	} else {
@@ -149,8 +149,8 @@ func (predictor *Predictor) PredictWithNtree(feat util.FVec, output_margin bool,
 	}
 }
 
-func (predictor *Predictor) predictRaw(feat util.FVec, ntree_limit int) []float32 {
-	preds := predictor.Gbm.Predict(feat, ntree_limit)
+func (predictor *Predictor) PredictArrayRaw(values []float32, treatsZeroAsNA bool, ntree_limit int) []float32 {
+	preds := predictor.Gbm.PredictArray(values, treatsZeroAsNA, ntree_limit)
 	for i := 0; i < len(preds); i++ {
 		preds[i] += predictor.Mparam.base_score
 	}
@@ -158,16 +158,12 @@ func (predictor *Predictor) predictRaw(feat util.FVec, ntree_limit int) []float3
 	return preds
 }
 
-func (predictor *Predictor) PredictSingle(feat util.FVec) float32 {
-	return predictor.PredictSingleWithMargin(feat, false)
+func (predictor *Predictor) PredictArraySingle(values []float32, treatsZeroAsNA bool) float32 {
+	return predictor.PredictArraySingleWithMargin(values, treatsZeroAsNA, false)
 }
 
-func (predictor *Predictor) PredictSingleWithMargin(feat util.FVec, output_margin bool) float32 {
-	return predictor.PredictSingleWithNtree(feat, output_margin, 0)
-}
-
-func (predictor *Predictor) PredictSingleWithNtree(feat util.FVec, output_margin bool, ntree_limit int) float32 {
-	pred := predictor.PredictSingleRaw(feat, ntree_limit)
+func (predictor *Predictor) PredictArraySingleWithMargin(values []float32, treatsZeroAsNA bool, output_margin bool) float32 {
+	pred := predictor.PredictArraySingleRaw(values, treatsZeroAsNA)
 	if output_margin {
 		return pred
 	} else {
@@ -175,17 +171,53 @@ func (predictor *Predictor) PredictSingleWithNtree(feat util.FVec, output_margin
 	}
 }
 
-func (predictor *Predictor) PredictSingleRaw(feat util.FVec, ntree_limit int) float32 {
-	temp := predictor.Gbm.PredictSingle(feat, ntree_limit)
+func (predictor *Predictor) PredictArraySingleRaw(values []float32, treatsZeroAsNA bool) float32 {
+	temp := predictor.Gbm.PredictSingleFromArray(values, treatsZeroAsNA)
 	return temp + predictor.Mparam.base_score
 }
 
-func (predictor *Predictor) PredictLeaf(feat util.FVec) []int {
-	return predictor.PredictLeafWithNtree(feat, 0)
+func (predictor *Predictor) PredictMap(values map[int]float32) []float32 {
+	return predictor.PredictMapWithMargin(values, false)
 }
 
-func (predictor *Predictor) PredictLeafWithNtree(feat util.FVec, ntree_limit int) []int {
-	return predictor.Gbm.PredictLeaf(feat, ntree_limit)
+func (predictor *Predictor) PredictMapWithMargin(values map[int]float32, output_margin bool) []float32 {
+	return predictor.PredictMapWithNtree(values, output_margin, 0)
+}
+
+func (predictor *Predictor) PredictMapWithNtree(values map[int]float32, output_margin bool, ntree_limit int) []float32 {
+	preds := predictor.PredictMapRaw(values, ntree_limit)
+	if output_margin {
+		return preds
+	} else {
+		return predictor.ObjFunction.PredTransform(preds)
+	}
+}
+
+func (predictor *Predictor) PredictMapRaw(values map[int]float32, ntree_limit int) []float32 {
+	preds := predictor.Gbm.PredictMap(values, ntree_limit)
+	for i := 0; i < len(preds); i++ {
+		preds[i] += predictor.Mparam.base_score
+	}
+
+	return preds
+}
+
+func (predictor *Predictor) PredictMapSingle(values map[int]float32) float32 {
+	return predictor.PredictMapSingleWithMargin(values, false)
+}
+
+func (predictor *Predictor) PredictMapSingleWithMargin(values map[int]float32, output_margin bool) float32 {
+	pred := predictor.PredictMapSingleRaw(values)
+	if output_margin {
+		return pred
+	} else {
+		return predictor.ObjFunction.PredTransformSingle(pred)
+	}
+}
+
+func (predictor *Predictor) PredictMapSingleRaw(values map[int]float32) float32 {
+	temp := predictor.Gbm.PredictSingleFromMap(values)
+	return temp + predictor.Mparam.base_score
 }
 
 type PredictorModelParam struct {

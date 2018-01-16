@@ -11,21 +11,41 @@ type RegTree struct {
 	stats []*RTreeNodeStat
 }
 
-func (rt *RegTree) GetLeafIndex(feat util.FVec, root_id int) int {
+func (rt *RegTree) GetLeafIndexByArray(values []float32, treatsZeroAsNA bool, root_id int) int {
 	pid := root_id
 	n := rt.nodes[pid]
 	for !n._isLeaf {
-		pid = n.next(feat)
+		pid = n.nextFromArray(values, treatsZeroAsNA)
 		n = rt.nodes[pid]
 	}
 
 	return pid
 }
 
-func (rt *RegTree) GetLeafValueFloat(feat util.FVec, root_id int) float32 {
+func (rt *RegTree) GetLeafIndexByMap(values map[int]float32, root_id int) int {
+	pid := root_id
+	n := rt.nodes[pid]
+	for !n._isLeaf {
+		pid = n.nextFromMap(values)
+		n = rt.nodes[pid]
+	}
+
+	return pid
+}
+
+func (rt *RegTree) GetLeafByMap(values map[int]float32, root_id int) float32 {
 	n := rt.nodes[root_id]
 	for !n._isLeaf {
-		n = rt.nodes[n.next(feat)]
+		n = rt.nodes[n.nextFromMap(values)]
+	}
+
+	return n.leaf_value
+}
+
+func (rt *RegTree) GetLeafByArray(values []float32, treatsZeroAsNA bool) float32 {
+	n := rt.nodes[0]
+	for !n._isLeaf {
+		n = rt.nodes[n.nextFromArray(values, treatsZeroAsNA)]
 	}
 
 	return n.leaf_value
@@ -189,12 +209,29 @@ func (n *Node) default_left() bool {
 	return n.sindex_>>31 != 0
 }
 
-func (n *Node) next(feat util.FVec) int {
-	fvalue := feat.Fvalue(n._splitIndex)
-	if fvalue != fvalue {
+func (n *Node) nextFromArray(values []float32, treatsZeroAsNA bool) int {
+	if len(values) <= n._splitIndex {
 		return n._defaultNext
 	} else {
-		if fvalue < n.split_cond {
+		result := values[n._splitIndex]
+		if treatsZeroAsNA && result == 0.0 {
+			return n._defaultNext
+		} else {
+			if result < n.split_cond {
+				return n.cleft_
+			} else {
+				return n.cright_
+			}
+		}
+	}
+}
+
+func (n *Node) nextFromMap(values map[int]float32) int {
+	value, ok := values[n._splitIndex]
+	if !ok || value != value {
+		return n._defaultNext
+	} else {
+		if value < n.split_cond {
 			return n.cleft_
 		} else {
 			return n.cright_
